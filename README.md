@@ -65,5 +65,6 @@ node 验证工具/check-next-cheapest.cjs
 - `.agents/skills/travel-project-rules/`：价格、行程和验收等项目规则。
 - `.agents/skills/travel-architecture/`：前后端、地图和数据流的架构导航。
 - `.agents/skills/travel-skill-builder/`：将可复用流程整理成技能，并提供创建技能目录的脚手架。
+- `.agents/skills/amap-interaction-workflow/`：高德地图界面与互动的需求、工具和验证方法。
 
 是否自动发现项目技能取决于使用的智能体工具；也可以直接指定对应的 `SKILL.md`。在仓库根目录运行 `node .agents/skills/travel-skill-builder/scripts/create-skill.cjs my-skill "适用场景"` 可创建新技能，之后需要补全内容并验证。
