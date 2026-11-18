@@ -1,0 +1,18 @@
+process.env.TEMP='E:/旅游规划工作台制作/验证工具/tmp';process.env.TMP=process.env.TEMP;
+const{chromium}=require('playwright');const assert=require('node:assert/strict');
+const KEY='xingjian-lvji-preview-v1';
+(async()=>{const b=await chromium.launch({headless:true,executablePath:'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'});try{const p=await b.newPage({viewport:{width:1276,height:720}});p.setDefaultTimeout(20000);const errors=[];p.on('pageerror',e=>errors.push(e.message));
+await p.goto('http://127.0.0.1:18647/');
+const oldState={version:1,started:true,entryMode:'new',section:'overview',mapOpen:true,day:0,origin:'上海',destination:'杭州',start:'2026-11-14',days:3,people:2,rooms:1,budget:3000,flexible:true,original:'',notes:'',transport:null,hotel:null,mapStay:null,outStatus:'待定',backStatus:'待定',plans:[[],[],[]],customPlaces:{'poi:old1':{id:'poi:old1',name:'旧地点',address:'',city:'杭州市',area:'',location:'120.182860,30.243482',mapLocation:'120.178250,30.245865',lng:120.178250,lat:30.245865,cost:null,duration:'',note:'',source:'测试'}},savedPlaces:['poi:old1'],dailyRoutes:{},messages:[],undo:[]};
+await p.evaluate(([key,data])=>{localStorage.setItem(key,JSON.stringify(data));},[KEY,oldState]);
+await p.reload({waitUntil:'domcontentloaded'});
+await p.waitForFunction(()=>typeof state!=='undefined'&&state.started);
+await p.waitForTimeout(800);
+const st=await p.evaluate(()=>{const c=state.customPlaces['poi:old1'];return{hasGcj02:!!c?.gcj02,hasWgs84:!!c?.wgs84,hasOldLocation:'location' in (c||{}),hasOldMapLocation:'mapLocation' in (c||{}),gcj02:c?.gcj02,wgs84:c?.wgs84};});
+console.log('迁移结果:',JSON.stringify(st));
+assert.ok(st.hasGcj02&&st.hasWgs84,'旧数据应迁移出 gcj02/wgs84');
+assert.equal(st.gcj02,'120.182860,30.243482');
+assert.equal(st.wgs84,'120.178250,30.245865');
+assert.ok(!st.hasOldLocation&&!st.hasOldMapLocation,'旧字段 location/mapLocation 应被删除');
+assert.deepEqual(errors,[]);
+console.log('PASS 旧数据字段迁移');}finally{await b.close()}})().catch(e=>{console.error(e.message);process.exitCode=1});

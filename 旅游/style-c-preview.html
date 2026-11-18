@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>方向 C · 暖白卡片流</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #faf9f7; color: #1a1a1a; height: 100vh; display: flex; flex-direction: column; overflow: hidden; font-size: 14px; }
+
+/* 顶栏 */
+.topbar { height: 56px; background: #fff; border-bottom: 1px solid #ebe9e4; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; flex-shrink: 0; }
+.brand { display: flex; align-items: center; gap: 10px; }
+.brand-icon { width: 30px; height: 30px; background: #1a1a1a; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; }
+.brand-name { font-size: 15px; font-weight: 600; }
+.trip-pill { background: #f0ece4; border-radius: 20px; padding: 5px 14px; font-size: 13px; color: #5c5346; font-weight: 500; }
+.top-right { display: flex; gap: 10px; align-items: center; }
+.btn { padding: 7px 16px; border-radius: 8px; font-size: 13px; cursor: pointer; border: none; font-weight: 500; }
+.btn-ghost { background: #f5f3ef; border: 1px solid #e0ddd7; color: #5c5346; }
+.btn-dark { background: #1a1a1a; color: #fff; }
+.btn-ghost:hover { background: #ebe9e4; }
+
+/* 步骤引导条 */
+.steps { background: #fff; border-bottom: 1px solid #ebe9e4; padding: 0 24px; display: flex; align-items: center; gap: 0; height: 44px; overflow-x: auto; }
+.step { display: flex; align-items: center; gap: 8px; padding: 0 16px 0 0; white-space: nowrap; cursor: pointer; color: #9e9a94; font-size: 13px; position: relative; }
+.step::after { content: '›'; margin-left: 10px; color: #ccc; font-size: 16px; }
+.step:last-child::after { display: none; }
+.step.done .step-num { background: #1a1a1a; color: #fff; }
+.step.active .step-num { background: #e8f0fe; color: #2563eb; border: 1.5px solid #93c5fd; }
+.step.active { color: #1a1a1a; font-weight: 500; }
+.step.done { color: #9e9a94; }
+.step-num { width: 20px; height: 20px; border-radius: 50%; background: #f0ece4; color: #9e9a94; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+/* 主内容 */
+.workspace { flex: 1; display: flex; min-height: 0; }
+
+/* 左侧：天数+概览 */
+.sidebar { width: 240px; background: #fff; border-right: 1px solid #ebe9e4; display: flex; flex-direction: column; overflow-y: auto; flex-shrink: 0; }
+.sidebar-section { padding: 16px; border-bottom: 1px solid #f0ece4; }
+.sidebar-title { font-size: 10px; font-weight: 600; color: #9e9a94; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 10px; }
+
+.day-card { padding: 10px 12px; border-radius: 10px; margin-bottom: 6px; cursor: pointer; border: 1.5px solid #ebe9e4; background: #faf9f7; transition: border-color .15s; }
+.day-card:hover { border-color: #c5bfb5; }
+.day-card.active { border-color: #1a1a1a; background: #fff; }
+.day-card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+.day-label { font-size: 11px; font-weight: 600; color: #9e9a94; }
+.day-card.active .day-label { color: #1a1a1a; }
+.day-date { font-size: 13px; font-weight: 500; }
+.day-places { font-size: 11px; color: #9e9a94; }
+.day-dots { display: flex; gap: 3px; margin-top: 5px; }
+.day-dot { width: 6px; height: 6px; border-radius: 2px; background: #e0ddd7; }
+.day-dot.filled { background: #1a1a1a; }
+.day-card.active .day-dot.filled { background: #2563eb; }
+
+.overview-card { background: #f5f3ef; border-radius: 10px; padding: 12px; }
+.ov-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; border-bottom: 1px solid #ebe9e4; }
+.ov-row:last-child { border-bottom: none; padding-bottom: 0; }
+.ov-label { font-size: 12px; color: #7a7570; }
+.ov-val { font-size: 12px; font-weight: 600; color: #1a1a1a; }
+.ov-val.ok { color: #16a34a; }
+.ov-val.warn { color: #d97706; }
+
+/* 中间：规划卡片 */
+.planner { flex: 1; overflow-y: auto; padding: 20px 20px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+
+.day-header-card { background: #fff; border-radius: 12px; padding: 16px 18px; border: 1px solid #ebe9e4; }
+.dhc-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.dhc-day { font-size: 18px; font-weight: 700; }
+.dhc-date { font-size: 13px; color: #9e9a94; }
+.dhc-tags { display: flex; gap: 6px; }
+.tag { padding: 3px 9px; border-radius: 6px; font-size: 11px; font-weight: 500; }
+.tag-green { background: #dcfce7; color: #16a34a; }
+.tag-blue { background: #dbeafe; color: #1d4ed8; }
+.tag-amber { background: #fef3c7; color: #d97706; }
+.dhc-hint { font-size: 12px; color: #9e9a94; background: #faf9f7; border-radius: 8px; padding: 8px 10px; border: 1px dashed #e0ddd7; }
+
+.place-card { background: #fff; border-radius: 12px; border: 1px solid #ebe9e4; overflow: hidden; cursor: pointer; transition: box-shadow .15s, border-color .15s; }
+.place-card:hover { border-color: #c5bfb5; box-shadow: 0 2px 10px rgba(0,0,0,.06); }
+.place-card.active { border-color: #1a1a1a; box-shadow: 0 2px 12px rgba(0,0,0,.1); }
+.pc-header { display: flex; align-items: center; gap: 12px; padding: 12px 14px; }
+.pc-num { width: 26px; height: 26px; border-radius: 7px; background: #f0ece4; color: #5c5346; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.place-card.active .pc-num { background: #1a1a1a; color: #fff; }
+.pc-info { flex: 1; min-width: 0; }
+.pc-name { font-size: 14px; font-weight: 600; }
+.pc-meta { font-size: 11px; color: #9e9a94; margin-top: 2px; }
+.pc-time { font-size: 12px; color: #5c5346; background: #f0ece4; padding: 3px 8px; border-radius: 6px; }
+.pc-actions { display: flex; gap: 6px; padding: 0 14px 10px; }
+.pc-btn { padding: 4px 10px; border-radius: 6px; font-size: 11px; cursor: pointer; border: 1px solid #e0ddd7; background: #faf9f7; color: #5c5346; }
+.pc-btn:hover { background: #f0ece4; }
+.pc-btn.primary { background: #1a1a1a; color: #fff; border-color: transparent; }
+
+.add-place-btn { background: #fff; border-radius: 12px; border: 1.5px dashed #d6d2cc; padding: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; color: #9e9a94; font-size: 13px; transition: border-color .15s, color .15s; }
+.add-place-btn:hover { border-color: #1a1a1a; color: #1a1a1a; }
+
+.saved-section { background: #fff; border-radius: 12px; border: 1px solid #ebe9e4; padding: 12px 14px; }
+.saved-title { font-size: 11px; font-weight: 600; color: #9e9a94; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 8px; }
+.saved-item { display: flex; align-items: center; gap: 8px; padding: 7px 0; border-bottom: 1px solid #f5f3ef; }
+.saved-item:last-child { border-bottom: none; }
+.star-badge { font-size: 13px; color: #d97706; }
+.saved-name { flex: 1; font-size: 13px; }
+.saved-add { font-size: 11px; color: #2563eb; border: 1px solid #c7d7f9; background: none; padding: 3px 8px; border-radius: 5px; cursor: pointer; }
+
+/* 右侧：地图 */
+.map-panel { width: 360px; background: #f5f3ef; display: flex; flex-direction: column; flex-shrink: 0; border-left: 1px solid #ebe9e4; }
+.map-header { padding: 14px 16px; background: #fff; border-bottom: 1px solid #ebe9e4; display: flex; align-items: center; justify-content: space-between; }
+.map-title { font-size: 13px; font-weight: 500; }
+.map-toggle { display: flex; background: #f5f3ef; border-radius: 7px; padding: 2px; }
+.mt-btn { padding: 3px 10px; border-radius: 5px; font-size: 11px; cursor: pointer; color: #9e9a94; }
+.mt-btn.active { background: #fff; color: #1a1a1a; font-weight: 500; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+.map-area { flex: 1; position: relative; overflow: hidden; }
+.map-bg { width: 100%; height: 100%; background: radial-gradient(ellipse at 45% 55%, #d4e8d4 0%, #d8e8f0 35%, #e8e4dc 70%, #f5f3ef 100%); }
+.map-pin { position: absolute; display: flex; flex-direction: column; align-items: center; }
+.pin-b { width: 26px; height: 26px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,.2); }
+.pin-b span { transform: rotate(45deg); color: #fff; font-size: 11px; font-weight: 700; }
+.pin-b.c1 { background: #1a1a1a; }
+.pin-b.c2 { background: #374151; }
+.pin-b.c3 { background: #6b7280; }
+.pin-lbl { font-size: 10px; background: #fff; padding: 2px 7px; border-radius: 5px; margin-top: 5px; box-shadow: 0 1px 4px rgba(0,0,0,.1); white-space: nowrap; color: #1a1a1a; }
+.star-p { font-size: 15px; color: #d97706; }
+.map-footer { padding: 10px 14px; background: #fff; border-top: 1px solid #ebe9e4; }
+.map-route-info { font-size: 12px; color: #5c5346; margin-bottom: 6px; }
+.route-btn { width: 100%; padding: 7px; background: #1a1a1a; color: #fff; border: none; border-radius: 8px; font-size: 12px; cursor: pointer; font-weight: 500; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-icon">行</div>
+    <div class="brand-name">行间 · 旅行规划工作台</div>
+  </div>
+  <div class="trip-pill">📍 杭州，慢慢逛 · 4天</div>
+  <div class="top-right">
+    <button class="btn btn-ghost">导出行程</button>
+    <button class="btn btn-dark">+ 添加地点</button>
+  </div>
+</div>
+
+<div class="steps">
+  <div class="step done"><div class="step-num">✓</div>创建旅行</div>
+  <div class="step done"><div class="step-num">✓</div>往返交通</div>
+  <div class="step active"><div class="step-num">3</div>规划行程</div>
+  <div class="step"><div class="step-num">4</div>安排住宿</div>
+  <div class="step"><div class="step-num">5</div>确认预算</div>
+</div>
+
+<div class="workspace">
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-title">按天查看</div>
+
+      <div class="day-card active">
+        <div class="day-card-top">
+          <div class="day-label">第 1 天</div>
+          <div class="day-date">11月20日</div>
+        </div>
+        <div class="day-places">3个地点</div>
+        <div class="day-dots">
+          <div class="day-dot filled"></div>
+          <div class="day-dot filled"></div>
+          <div class="day-dot filled"></div>
+          <div class="day-dot"></div>
+          <div class="day-dot"></div>
+        </div>
+      </div>
+
+      <div class="day-card">
+        <div class="day-card-top">
+          <div class="day-label">第 2 天</div>
+          <div class="day-date">11月21日</div>
+        </div>
+        <div class="day-places">2个地点</div>
+        <div class="day-dots">
+          <div class="day-dot filled"></div>
+          <div class="day-dot filled"></div>
+          <div class="day-dot"></div>
+          <div class="day-dot"></div>
+          <div class="day-dot"></div>
+        </div>
+      </div>
+
+      <div class="day-card">
+        <div class="day-card-top">
+          <div class="day-label">第 3 天</div>
+          <div class="day-date">11月22日</div>
+        </div>
+        <div class="day-places">待规划</div>
+        <div class="day-dots">
+          <div class="day-dot"></div>
+          <div class="day-dot"></div>
+          <div class="day-dot"></div>
+          <div class="day-dot"></div>
+          <div class="day-dot"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-title">行程概览</div>
+      <div class="overview-card">
+        <div class="ov-row"><span class="ov-label">总地点</span><span class="ov-val">5处</span></div>
+        <div class="ov-row"><span class="ov-label">往返交通</span><span class="ov-val ok">✓ 高铁已选</span></div>
+        <div class="ov-row"><span class="ov-label">住宿</span><span class="ov-val warn">待定</span></div>
+        <div class="ov-row"><span class="ov-label">当前预算</span><span class="ov-val">≈ ¥680</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="planner">
+    <div class="day-header-card">
+      <div class="dhc-top">
+        <div>
+          <div class="dhc-day">第 1 天</div>
+          <div class="dhc-date">2024年11月20日 · 西湖周边</div>
+        </div>
+        <div class="dhc-tags">
+          <span class="tag tag-green">已规划</span>
+          <span class="tag tag-blue">3个地点</span>
+          <span class="tag tag-amber">约¥40</span>
+        </div>
+      </div>
+      <div class="dhc-hint">💡 拖拽卡片可调整访问顺序；点击地点可在右侧地图上高亮定位</div>
+    </div>
+
+    <div class="place-card active">
+      <div class="pc-header">
+        <div class="pc-num">1</div>
+        <div class="pc-info">
+          <div class="pc-name">西湖风景名胜区</div>
+          <div class="pc-meta">景点 · 建议2–3小时 · 免费入场</div>
+        </div>
+        <div class="pc-time">09:00</div>
+      </div>
+      <div class="pc-actions">
+        <button class="pc-btn">修改时间</button>
+        <button class="pc-btn">在地图上看</button>
+        <button class="pc-btn">查附近餐厅</button>
+        <button class="pc-btn" style="margin-left:auto;color:#ef4444;border-color:#fecaca">移除</button>
+      </div>
+    </div>
+
+    <div class="place-card">
+      <div class="pc-header">
+        <div class="pc-num">2</div>
+        <div class="pc-info">
+          <div class="pc-name">雷峰塔</div>
+          <div class="pc-meta">景点 · 建议1小时 · ¥40/人</div>
+        </div>
+        <div class="pc-time">11:30</div>
+      </div>
+    </div>
+
+    <div class="place-card">
+      <div class="pc-header">
+        <div class="pc-num">3</div>
+        <div class="pc-info">
+          <div class="pc-name">龙井村</div>
+          <div class="pc-meta">景点 · 建议2小时 · 免费</div>
+        </div>
+        <div class="pc-time">14:00</div>
+      </div>
+    </div>
+
+    <div class="add-place-btn">
+      <span style="font-size:18px;line-height:1">+</span>
+      <span>搜索并添加地点</span>
+    </div>
+
+    <div class="saved-section">
+      <div class="saved-title">收藏的地点（待安排）</div>
+      <div class="saved-item">
+        <span class="star-badge">★</span>
+        <span class="saved-name">灵隐寺</span>
+        <button class="saved-add">+ 加入今天</button>
+      </div>
+      <div class="saved-item">
+        <span class="star-badge">★</span>
+        <span class="saved-name">断桥残雪</span>
+        <button class="saved-add">+ 加入今天</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="map-panel">
+    <div class="map-header">
+      <div class="map-title">第 1 天路线</div>
+      <div class="map-toggle">
+        <div class="mt-btn active">路线</div>
+        <div class="mt-btn">卫星</div>
+      </div>
+    </div>
+    <div class="map-area">
+      <div class="map-bg"></div>
+      <div class="map-pin" style="top:22%;left:40%">
+        <div class="pin-b c1"><span>1</span></div>
+        <div class="pin-lbl">西湖</div>
+      </div>
+      <div class="map-pin" style="top:50%;left:48%">
+        <div class="pin-b c2"><span>2</span></div>
+        <div class="pin-lbl">雷峰塔</div>
+      </div>
+      <div class="map-pin" style="top:35%;left:20%">
+        <div class="pin-b c3"><span>3</span></div>
+        <div class="pin-lbl">龙井村</div>
+      </div>
+      <svg style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none" viewBox="0 0 360 450" preserveAspectRatio="none">
+        <polyline points="144,99 173,225 72,157" fill="none" stroke="#1a1a1a" stroke-width="2" stroke-dasharray="6,5" opacity=".35"/>
+      </svg>
+      <div class="map-pin" style="top:16%;left:62%">
+        <div class="star-p">★</div>
+        <div class="pin-lbl" style="color:#d97706">灵隐寺</div>
+      </div>
+    </div>
+    <div class="map-footer">
+      <div class="map-route-info">3个地点 · 路线全长约 8.4km</div>
+      <button class="route-btn">查询高德真实路线 →</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

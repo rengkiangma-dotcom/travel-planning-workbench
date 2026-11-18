@@ -1,0 +1,490 @@
+@import '../../styles.css';
+@import '../../lvji.css';
+@import '../../workspace.css';
+@import '../../live-data.css';
+
+#map-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 24px;
+  color: var(--muted, #7b837c);
+  line-height: 1.7;
+}
+
+/* 新版顶栏：旧版压缩头部把面包屑和徽标都隐藏了，这里只在新版恢复。 */
+.studio-mode .topbar {
+  height: 56px;
+  padding: 0 24px;
+}
+
+.studio-mode .breadcrumb {
+  display: block;
+}
+
+.studio-mode .top-actions .demo-badge {
+  display: inline-block;
+}
+
+.studio-mode .topbar #map-toggle {
+  position: absolute;
+  top: 10px;
+  right: 24px;
+}
+
+.studio-mode .top-actions {
+  padding-right: 46px;
+}
+
+.studio-mode .top-actions #provider-settings {
+  order: 0;
+}
+
+.create-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.create-head-actions .text-button {
+  font-size: 11px;
+}
+
+.map-stay-card { display: flex; justify-content: space-between; align-items: center; gap: 14px; margin-bottom: 16px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 12px; background: #f8f8f1; }
+.map-stay-card strong { font-size: 12px; }
+.map-stay-card .subtle { margin: 5px 0 0; line-height: 1.65; }
+.map-stay-current { margin: 7px 0 0; font-size: 11px; color: var(--green); }
+.map-stay-actions { display: flex; align-items: center; gap: 8px; flex: none; }
+@media (max-width: 520px) { .map-stay-card { align-items: flex-start; flex-direction: column; } }
+
+.day-time-planner { margin: 14px 0 20px; padding: 15px 16px; border: 1px solid var(--line); border-radius: 13px; background: #fbfbf6; }
+.day-time-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+.day-time-head label, .day-time-fields label { display: flex; align-items: center; gap: 7px; color: var(--muted); font-size: 11px; }
+.day-time-head input, .day-time-fields input { min-width: 0; width: 112px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 7px; background: white; color: var(--ink); font: inherit; }
+.day-time-head>span { color: var(--muted); font-size: 10px; line-height: 1.5; }
+.day-time-list { list-style: none; padding: 0; margin: 0; }
+.day-time-list li { padding: 12px 0; border-bottom: 1px solid #e9ece4; }
+.day-time-list li:last-child { border-bottom: 0; padding-bottom: 0; }
+.day-time-title { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; font-size: 11px; }
+.day-time-title span { color: var(--muted); font-size: 10px; }
+.day-time-fields { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; align-items: center; }
+.day-time-fields>span { color: var(--muted); font-size: 10px; }
+.day-time-fields b { display: block; color: var(--ink); font-size: 12px; font-weight: 600; margin-top: 3px; }
+.day-time-fields label { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+.day-time-fields input { width: 100%; }
+.time-warning { margin: 7px 0 0; color: #a45c32; font-size: 10px; }
+@media (max-width: 680px) { .day-time-head { align-items: flex-start; flex-direction: column; } .day-time-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+.saved-trip-list {
+  display: grid;
+  gap: 10px;
+  max-height: 52vh;
+  margin: 14px 0;
+  overflow: auto;
+}
+
+.saved-trip-list .option-card {
+  margin: 0;
+}
+
+.saved-trip-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.saved-trip-folder {
+  font-size: 10px;
+  word-break: break-all;
+  margin-top: 6px;
+}
+
+/* 入口卡片下方的“旅记”列表：直接显示最近保存的行程。 */
+.entry-journal {
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
+}
+
+.entry-mode .lvji-copy { align-self: center; position: static; padding-top: 0; }
+.entry-mode .lvji-create { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(32px, 5vw, 70px); }
+.entry-mode .lvji-create-card { align-self: center; min-height: 300px; }
+.entry-mode .lvji-copy h1 { font-size: clamp(36px, 4vw, 54px); }
+.entry-tabs { display: flex; gap: 8px; }
+.entry-tabs button { border: 0; border-bottom: 2px solid transparent; padding: 8px 4px; background: transparent; color: var(--muted); font-size: 12px; }
+.entry-tabs button.active { border-bottom-color: var(--orange); color: var(--ink); font-weight: 600; }
+@media (max-width: 700px) { .entry-mode .lvji-create { grid-template-columns: minmax(0, 1fr); } }
+
+.journal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.journal-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.journal-item {
+  display: grid;
+  grid-template-columns: 68px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 11px 8px;
+  border: 0;
+  border-bottom: 1px dashed #e2e5dc;
+  border-radius: 0;
+  background: transparent;
+  text-align: left;
+}
+
+.journal-item:hover {
+  background: #f7f6ef;
+}
+
+.journal-date {
+  font: 500 15px var(--serif);
+  color: #8a6f52;
+  letter-spacing: .5px;
+  white-space: nowrap;
+}
+
+.journal-body strong {
+  display: block;
+  font: 500 15px/1.4 var(--serif);
+  color: var(--ink);
+}
+
+.journal-body small {
+  display: block;
+  margin-top: 3px;
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.journal-go {
+  font-size: 10px;
+  color: #6a7f68;
+}
+
+/* 交通查询整块压成一行：出发、到达、日期、天数、车次、选项、查询。 */
+.live-card > .rail-inline {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  row-gap: 6px;
+  flex-wrap: wrap;
+  font-size: 10px;
+}
+
+.rail-inline .rail-tag {
+  flex: none;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: .8px;
+  color: var(--orange);
+}
+
+.rail-inline input,
+.rail-inline select,
+.rail-inline button {
+  height: 30px;
+  min-height: 0;
+  margin: 0;
+  padding: 0 7px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #f6f5ee;
+  font-size: 10px;
+  line-height: 1;
+}
+
+.rail-inline input[name="origin"],
+.rail-inline input[name="destination"] {
+  flex: 1 1 52px;
+  min-width: 0;
+}
+
+.rail-inline input[type="date"] {
+  flex: 0 0 94px;
+  padding-right: 2px;
+}
+
+.rail-inline input[name="days"] {
+  flex: 0 0 32px;
+  padding: 0 2px;
+  text-align: center;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.rail-inline input[name="days"]::-webkit-inner-spin-button,
+.rail-inline input[name="days"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.rail-unit {
+  flex: none;
+  margin-left: -2px;
+  font-size: 9px;
+  color: var(--muted);
+}
+
+.rail-arrow {
+  flex: none;
+  margin: 0 -1px;
+  font-size: 10px;
+  line-height: 1;
+  color: var(--muted);
+}
+
+.rail-inline select {
+  flex: 0 0 68px;
+  min-width: 0;
+  padding-right: 0;
+}
+
+.rail-check {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex: none;
+  font-size: 10px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.rail-check input {
+  width: 12px;
+  height: 12px;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.rail-inline .button {
+  flex: none;
+  padding: 0 9px;
+  border: 0;
+}
+
+/* 去程 / 返程两栏 */
+.leg-board {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.leg-card {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fffefa;
+}
+
+.leg-card header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px;
+  font-size: 9px;
+  color: var(--muted);
+}
+
+.leg-card header strong {
+  font: 500 14px var(--serif);
+  color: var(--ink);
+}
+
+.leg-route {
+  font-size: 10px;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.leg-picked {
+  font-size: 10px;
+  line-height: 1.55;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.leg-fare {
+  font: 500 18px Georgia, serif;
+  color: var(--ink);
+}
+
+.leg-fare small,
+.leg-empty,
+.leg-compare,
+.leg-note {
+  font-size: 9px;
+  color: var(--muted);
+}
+
+.leg-note {
+  color: #5c7359;
+}
+
+.leg-card .button {
+  margin-top: auto;
+  align-self: flex-start;
+}
+
+.leg-status { font-size: 10px; color: var(--muted); }
+.leg-status .theme-select { margin-top: 4px; }
+
+/* “算最便宜”的结果：先列候选，再由用户点选。 */
+.best-result {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.best-block {
+  border-top: 1px dashed var(--line);
+  padding-top: 10px;
+}
+
+.best-title {
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.best-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 8px;
+  margin-top: 7px;
+}
+
+.best-option {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fffefa;
+}
+
+.best-option.cheapest {
+  border-color: #b7c9ae;
+  background: #f3f6ec;
+}
+
+.best-head {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.best-tag {
+  font-size: 9px;
+  color: var(--muted);
+}
+
+.best-head em {
+  font-style: normal;
+  font-size: 9px;
+  color: #4c7a45;
+  border: 1px solid #cfdcc6;
+  border-radius: 3px;
+  padding: 0 3px;
+}
+
+.best-head strong {
+  margin-left: auto;
+  font: 500 18px Georgia, serif;
+}
+
+.best-option p {
+  font-size: 10px;
+  line-height: 1.6;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.best-route {
+  font-size: 9px;
+  color: var(--muted);
+}
+
+.best-option .button {
+  align-self: flex-start;
+  margin-top: 4px;
+}
+
+.best-hint {
+  margin-top: 5px;
+  font-size: 9px;
+  color: var(--muted);
+}
+
+.rail-leg-tabs { display: flex; gap: 6px; margin: 12px 0; }
+.rail-leg-tabs button { flex: 1; min-width: 0; padding: 8px 4px; border: 1px solid var(--line); border-radius: 8px; background: transparent; color: var(--muted); font-size: 10px; }
+.rail-leg-tabs button.active { background: #e7efe6; border-color: #72957d; color: #214f3e; }
+
+.transport-tabs { display: flex; gap: 6px; margin-bottom: 12px; }
+.transport-tabs button { flex: 1; padding: 9px; border: 1px solid var(--line); border-radius: 8px; background: #fffefa; color: var(--muted); }
+.transport-tabs button.active { background: #e7efe6; border-color: #72957d; color: #214f3e; }
+.flight-placeholder p { margin-top: 8px; color: var(--muted); font-size: 11px; }
+
+.place-image-card { display: flex; gap: 12px; align-items: stretch; }
+.place-focus-card { cursor: pointer; transition: border-color .16s ease, box-shadow .16s ease, transform .16s ease; }
+.place-focus-card:hover { border-color: #9db3a3; box-shadow: 0 5px 18px #344c3c12; transform: translateY(-1px); }
+.place-focus-card:focus-visible { outline: 2px solid #72957d; outline-offset: 2px; }
+.place-focus-card.selected { border-color: #d7663d; background: #fff9f3; box-shadow: inset 0 0 0 1px #d7663d33, 0 7px 22px #a64d2917; transform: translateY(-1px); }
+.place-focus-card.selected .place-image-placeholder { box-shadow: inset 0 0 0 2px #d7663d; }
+.place-image-placeholder { position: relative; flex: 0 0 100px; min-height: 100px; overflow: hidden; border-radius: 9px; background: #dde9df; }
+.place-image-placeholder svg { width: 100%; height: 100%; position: absolute; inset: 0; object-fit: cover; }
+.place-image-placeholder small { position: absolute; bottom: 5px; left: 6px; color: #fff; font-size: 9px; }
+.place-card-content { min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+.place-card-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; padding-top: 4px; }
+.place-card-actions .button { margin-top: 0; }
+
+.theme-select { position: relative; min-width: 0; }
+.theme-select summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; list-style: none; cursor: pointer; min-height: 40px; padding: 9px 12px; border: 1px solid var(--line); border-radius: 9px; background: #f7f6f0; color: var(--ink); font-size: 11px; }
+.theme-select summary::-webkit-details-marker { display: none; }
+.theme-select summary:focus-visible, .theme-select-menu button:focus-visible { outline: 2px solid #72957d; outline-offset: 2px; }
+.theme-select summary[aria-disabled="true"] { opacity: .5; cursor: not-allowed; }
+.theme-select-menu { position: absolute; z-index: 30; top: calc(100% + 4px); left: 0; min-width: 100%; max-height: 220px; overflow-y: auto; padding: 5px; border: 1px solid var(--line); border-radius: 10px; background: #fffefa; box-shadow: 0 10px 24px #1831261c; }
+.theme-select-menu button { display: block; width: 100%; padding: 9px 10px; border: 0; border-radius: 6px; background: transparent; text-align: left; color: var(--ink); white-space: nowrap; font-size: 11px; }
+.theme-select-menu button:hover, .theme-select-menu button.selected { background: #e7efe6; color: #214f3e; }
+.field > .theme-select { margin-top: 7px; }
+.rail-inline .theme-select { flex: 0 0 78px; }
+.rail-inline .theme-select summary { min-height: 30px; padding: 5px 7px; font-size: 10px; }
+.compact-select summary { min-height: 26px; padding: 4px 6px; font-size: 9px; }
+.train-pick .theme-select { max-width: 60%; }
+
+.studio-mode .workspace-topbar { min-height: 56px; height: auto; padding: 8px 16px; gap: 6px; flex-wrap: wrap; }
+.studio-mode .workspace-topbar .top-actions { display: flex; align-items: center; gap: 6px; padding-right: 0; flex-wrap: wrap; }
+.studio-mode .workspace-topbar #map-toggle { position: static; }
+
+@media (min-width: 801px) {
+  .studio-mode .workspace.with-map { grid-template-columns: clamp(340px, var(--planning-width, 40%), calc(100% - 288px)) 8px minmax(0, 1fr); }
+  .workspace-splitter { display: flex; align-items: center; justify-content: center; cursor: col-resize; touch-action: none; background: var(--paper); }
+  .workspace-splitter span { width: 3px; height: 48px; border-radius: 3px; background: #bdc9b9; }
+  .workspace-splitter:hover span, .workspace-splitter:focus-visible span, .workspace.resizing .workspace-splitter span { background: #62846e; }
+  .workspace.resizing { user-select: none; cursor: col-resize; }
+}
+@media (max-width: 800px) { .workspace-splitter { display: none; } }
+
+.studio-mode .hotel-search-card { padding: 12px; }
+.hotel-search-card #supplier-hotel-form .form-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px !important; }
+.hotel-search-card #supplier-hotel-form .field.full { grid-column: span 2; }
+.hotel-search-card #supplier-hotel-form input, .hotel-search-card #supplier-hotel-form select { min-height: 32px; padding: 5px 7px; margin-top: 3px; width: 100%; }
+.hotel-search-card #supplier-hotel-form .form-actions { margin-top: 8px; }

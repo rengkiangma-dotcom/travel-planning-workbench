@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>高德地铁线路图</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; font: 14px "Microsoft YaHei", sans-serif; color: #394557; }
+    .bar { position: absolute; z-index: 20; inset: 0 0 auto; min-height: 48px; display: flex; align-items: center; gap: 10px; padding: 6px 14px; background: #fff; box-shadow: 0 2px 8px #0002; }
+    .bar label { white-space: nowrap; }
+    select, button { font: inherit; border: 1px solid #d9e1eb; background: #fff; color: #39516c; border-radius: 3px; padding: 5px 8px; }
+    select { max-width: min(200px, 45vw); }
+    button { cursor: pointer; }
+    button:disabled { cursor: not-allowed; opacity: .45; }
+    button:focus-visible, select:focus-visible { outline: 2px solid #1687ee; outline-offset: 2px; }
+    .stage { position: absolute; inset: 48px 0 0; overflow: hidden; background: #f6f8fb; }
+    #subway-map { width: 100%; height: 100%; overflow: hidden; }
+    #status { position: absolute; z-index: 10; top: 12px; left: 50%; transform: translateX(-50%); max-width: calc(100% - 32px); padding: 9px 14px; background: #fff; box-shadow: 0 2px 8px #0002; border-radius: 3px; }
+    #status:empty { display: none; }
+    .zoom { margin-left: auto; display: flex; gap: 5px; }
+    .zoom button { width: 32px; font-size: 19px; line-height: 20px; padding: 2px; }
+    .route_close_btn { top: 60px !important; right: 12px !important; }
+  </style>
+</head>
+<body>
+  <div class="bar"><label for="city">城市</label><select id="city" aria-label="选择地铁城市" disabled><option value="">正在加载城市…</option></select><div class="zoom"><button id="zoom-out" type="button" aria-label="缩小地铁图" disabled>−</button><button id="zoom-in" type="button" aria-label="放大地铁图" disabled>＋</button></div></div>
+  <div class="stage"><div id="subway-map"></div><div id="status" role="status">正在加载地铁线路图…</div></div>
+  <script>
+  (() => {
+    const citySelect = document.getElementById('city');
+    const status = document.getElementById('status');
+    const zoomIn = document.getElementById('zoom-in');
+    const zoomOut = document.getElementById('zoom-out');
+    const params = new URLSearchParams(location.search);
+    let subway = null;
+    let zoom = 0.6;
+    function message(text) { status.textContent = text; }
+    function normalize(name) { return String(name || '').trim().replace(/市$/, ''); }
+    function reloadCity(code) { const url = new URL(location.href); url.searchParams.set('code', code); location.replace(url.href); }
+    citySelect.addEventListener('change', () => { if (citySelect.value) reloadCity(citySelect.value); });
+    function setZoom(next) {
+      if (!subway || typeof subway.scale !== 'function') return;
+      zoom = Math.max(0.3, Math.min(1.3, next));
+      subway.scale(zoom);
+    }
+    zoomIn.addEventListener('click', () => setZoom(zoom + 0.1));
+    zoomOut.addEventListener('click', () => setZoom(zoom - 0.1));
+    async function start() {
+      try {
+        const [configResponse, citiesResponse] = await Promise.all([
+          fetch('/api/map/js-config', { signal: AbortSignal.timeout(12000) }),
+          fetch('https://webapi.amap.com/subway/data/citylist.json', { signal: AbortSignal.timeout(12000) }),
+        ]);
+        if (!configResponse.ok) throw new Error('无法读取地图配置。');
+        if (!citiesResponse.ok) throw new Error('地铁城市列表加载失败。');
+        const config = await configResponse.json();
+        const data = await citiesResponse.json();
+        if (!config.configured || !config.key) throw new Error('请先在接口设置中配置高德网页地图。');
+        const cities = (Array.isArray(data.citylist) ? data.citylist : []).filter(c => /^\d{4,6}$/.test(String(c.adcode)) && typeof c.cityname === 'string' && c.cityname.trim());
+        if (!cities.length) throw new Error('高德没有返回可用的地铁城市列表。');
+        cities.sort((a,b) => String(a.spell || a.cityname).localeCompare(String(b.spell || b.cityname)));
+        citySelect.replaceChildren(new Option('请选择城市', ''));
+        for (const city of cities) citySelect.add(new Option(city.cityname, String(city.adcode)));
+        citySelect.disabled = false;
+        const selected = cities.find(c => String(c.adcode) === params.get('code')) || (!params.has('code') ? cities.find(c => normalize(c.cityname) === normalize(params.get('city'))) : null);
+        if (!selected) { citySelect.value = ''; message('当前目的地没有匹配到地铁图，请选择城市。'); return; }
+        citySelect.value = String(selected.adcode);
+        message('正在加载' + selected.cityname + '地铁图…');
+        await new Promise((resolve, reject) => {
+          const timer = setTimeout(() => reject(new Error('地铁图组件加载超时。')), 15000);
+          window.subwayViewReady = () => { clearTimeout(timer); resolve(); };
+          const script = document.createElement('script');
+          script.src = 'https://webapi.amap.com/subway?v=1.0&key=' + encodeURIComponent(config.key) + '&callback=subwayViewReady';
+          script.onerror = () => { clearTimeout(timer); reject(new Error('地铁图组件加载失败。')); };
+          document.head.append(script);
+        });
+        if (typeof window.subway !== 'function') throw new Error('地铁图组件不可用。');
+        subway = window.subway('subway-map', { easy: 1, adcode: Number(selected.adcode), doubleclick: { switch: true } });
+        if (!subway?.event?.on) throw new Error('地铁图初始化失败。');
+        const timer = setTimeout(() => message('地铁图数据加载超时，请重新选择城市重试。'), 20000);
+        subway.event.on('subway.complete', () => {
+          clearTimeout(timer); message('');
+          zoomIn.disabled = typeof subway.scale !== 'function'; zoomOut.disabled = typeof subway.scale !== 'function';
+          if (typeof subway.scale === 'function') subway.scale(zoom);
+        });
+        subway.event.on('station.touch', (_event, info) => {
+          if (!info?.id || typeof subway.addInfoWindow !== 'function') return;
+          subway.stopAnimation?.(); subway.addInfoWindow(info.id, {});
+        });
+        subway.event.on('subway.touch', () => subway.clearInfoWindow?.());
+      } catch (error) { message(error?.message || '地铁图加载失败，请稍后重试。'); }
+    }
+    start();
+  })();
+  </script>
+</body>
+</html>

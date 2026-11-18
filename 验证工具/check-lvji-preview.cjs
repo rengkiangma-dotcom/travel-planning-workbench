@@ -1,0 +1,48 @@
+process.env.TEMP='E:/旅游规划工作台制作/验证工具/tmp';
+process.env.TMP=process.env.TEMP;
+const {chromium}=require('playwright');
+const fs=require('node:fs/promises');
+const path=require('node:path');
+const assert=require('node:assert/strict');
+(async()=>{
+ const browser=await chromium.launch({headless:true,executablePath:'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',args:['--disable-gpu'],env:{...process.env,TEMP:'E:/旅游规划工作台制作/验证工具/tmp',TMP:'E:/旅游规划工作台制作/验证工具/tmp'}});
+ const context=await browser.newContext({viewport:{width:1440,height:1000},deviceScaleFactor:1});
+ const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
+ const out=path.resolve(__dirname,'../旅迹风格预览/验收');await fs.mkdir(out,{recursive:true});
+ try{
+ await page.goto('http://127.0.0.1:18647/');await page.getByRole('heading',{name:'你已经有行程了吗？'}).waitFor();
+ assert.equal(await page.locator('#map-panel').isVisible(),false);
+ await page.screenshot({path:path.join(out,'选择起点.png'),fullPage:true});
+ await page.getByRole('button',{name:'还没有行程 从目的地与交通开始'}).click();
+ await page.getByLabel('行程名称').fill('杭州，沿湖慢慢走');
+ await page.getByLabel('偏好与备注').fill('学生穷游，希望住宿靠近地铁。');
+ await page.getByRole('button',{name:'日期待定 · 想比比价格',exact:true}).click();
+ assert.equal(await page.getByLabel('行程名称').inputValue(),'杭州，沿湖慢慢走');
+ assert.equal(await page.getByLabel('偏好与备注').inputValue(),'学生穷游，希望住宿靠近地铁。');
+ await page.screenshot({path:path.join(out,'新建行程-日期待定.png'),fullPage:true});
+ await page.getByRole('button',{name:'选择出发日期',exact:true}).click();
+ await page.screenshot({path:path.join(out,'新建行程.png'),fullPage:true});
+ assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
+ await page.getByRole('button',{name:'创建旅行工作台',exact:false}).click();
+ await page.getByRole('heading',{name:'把两头的路，先安排好。'}).waitFor();
+ assert.equal(await page.locator('#map-panel').isVisible(),false);
+ await page.getByRole('button',{name:'重新开始',exact:true}).click();await page.locator('#dialog-confirm').click();
+ await page.getByRole('button',{name:'已经有安排 保留原文，继续完善'}).click();
+ const original='2026 年 11 月 14 日已订高铁到杭州东站，第二天上午有预约，原安排不得改写。';
+ await page.getByLabel('已有行程',{exact:true}).fill(original);
+ await page.getByRole('button',{name:'保留安排，创建旅行工作台',exact:false}).click();
+ await page.getByText(original,{exact:true}).waitFor();
+ await page.reload();await page.getByText(original,{exact:true}).waitFor();
+ await page.getByRole('button',{name:'载入杭州示例',exact:true}).click();await page.locator('#dialog-confirm').click();
+ await page.getByRole('button',{name:'展开地图 ↗',exact:true}).click();await page.locator('#map-panel').waitFor();
+ await page.getByRole('button',{name:'第 2 天',exact:true}).click();
+ await page.waitForFunction(()=>document.querySelector('#map-route-label').textContent==='灵隐寺一带 → 龙井村');
+ assert.match(await page.locator('#map-route-label').textContent(),/灵隐寺一带 → 龙井村/);
+ await page.getByRole('button',{name:'✎ 我的需求',exact:true}).click();assert.equal(await page.locator('.original-text').textContent(),original);
+ await page.getByRole('button',{name:'重新开始',exact:true}).click();await page.locator('#dialog-confirm').click();
+ assert.equal(await page.getByRole('heading',{name:'你已经有行程了吗？'}).isVisible(),true);
+ assert.deepEqual(errors,[]);
+ const report={date:'2026-11-10',browser:'Independent headless Edge; no user browser profile or desktop input',checks:['先询问有无行程','地图初始隐藏','创建表单双栏布局','切换日期模式保留表单','新建后进入交通模块','原始行程保留并可刷新恢复','地图展开及切换日期联动','桌面无横向溢出','无页面脚本错误'],screenshots:['选择起点.png','新建行程.png','新建行程-日期待定.png'],pageErrors:errors};
+ await fs.writeFile(path.join(out,'验证记录.json'),JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));
+ }finally{await browser.close();}
+})().catch(e=>{console.error(e);process.exitCode=1;});

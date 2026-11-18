@@ -1,0 +1,97 @@
+{
+  "apiType": "function",
+  "directList": {
+    "ok": true,
+    "type": "object",
+    "count": 1
+  },
+  "cityCount": 58,
+  "citySample": [
+    [
+      "1100",
+      {
+        "city": "beijing",
+        "name": "北京市"
+      }
+    ],
+    [
+      "3100",
+      {
+        "city": "shanghai",
+        "name": "上海市"
+      }
+    ],
+    [
+      "3301",
+      {
+        "city": "hangzhou",
+        "name": "杭州市"
+      }
+    ],
+    [
+      "3702",
+      {
+        "city": "qingdao",
+        "name": "青岛市"
+      }
+    ]
+  ],
+  "selected": "3702",
+  "render": {
+    "text": "东郭庄\n沟岔\n农业大学\n正阳中路\n小寨子\n凤岗路\n流亭\n仙家寨(汽车北站)\n瑞金路\n遵义路\n南岭\n兴国路\n永年路\n沧安路\n青岛北站\n安顺路\n胜利桥(纺织谷)\n中心医院\n水清沟\n北岭\n小村庄\n海泊桥(海慈医疗)\n台东\n广饶路\n观象山(市立医院)\n中山路\n青岛站\n西镇\n团岛\n凤凰岛\n山里\n南北屯\n新港山路\n安子\n天目山路\n薛家岛\n丁家河\n井冈山路\n太行山路\n石油大学\n王家港\n李村公园\n李村\n枣山路\n华",
+    "svg": 1,
+    "canvas": 0,
+    "images": 0,
+    "htmlLength": 62914,
+    "hostStyle": "top: 5%; left: 42%; width: 55%; height: 90%; background: rgb(255, 255, 255); z-index: 100000; overflow: hidden; position: relative; touch-action: none; user-select: none; -webkit-user-drag: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);",
+    "hostRect": {
+      "x": 672,
+      "y": 1050,
+      "w": 880,
+      "h": 900
+    },
+    "svgRect": {
+      "x": -200,
+      "y": -500,
+      "w": 2000,
+      "h": 2000
+    },
+    "svgParent": "<div id=\"subwaySvg\" style=\"display: block;\"> <div class=\"overlays\"> </div>  <svg class=\"subway-content\" id=\"subway-svg\" adcode=\"3702\" width=\"2000px\" height=\"2000px\" style=\"width: 2000px; height: 2000px; left: -200px; top: -500px;\"><defs><image id=\"normalStation\" width=\"26\" height=\"26\" xlink:href=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAB4CAYAAAA5ZDbSAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA3hpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2Vo",
+    "computed": {
+      "position": "relative",
+      "overflow": "hidden"
+    }
+  },
+  "requests": [
+    {
+      "host": "webapi.amap.com",
+      "path": "/subway/data/citylist.json",
+      "status": 200
+    },
+    {
+      "host": "webapi.amap.com",
+      "path": "/subway",
+      "status": 200
+    },
+    {
+      "host": "webapi.amap.com",
+      "path": "/subway/main",
+      "status": 200
+    },
+    {
+      "host": "webapi.amap.com",
+      "path": "/subway/data/citylist.json",
+      "status": 200
+    },
+    {
+      "host": "webapi.amap.com",
+      "path": "/subway/data/citylist.json",
+      "status": 200
+    },
+    {
+      "host": "webapi.amap.com",
+      "path": "/subway/data/3702_drw_qingdao.json",
+      "status": 200
+    }
+  ]
+}

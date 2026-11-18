@@ -1,0 +1,26 @@
+本地接口配置/
+验证工具/node_modules/
+验证工具/npm-cache/
+验证工具/tmp/
+
+# 旧原型与打包产物：体积大，且不是当前主线（旅迹风格预览）
+旅迹/
+
+# 第三方二进制与逆向材料
+调研/**/REA拆解/
+*.apk
+
+# 系统杂项
+Thumbs.db
+desktop.ini
+.DS_Store
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# 新前端构建产物
+旅迹风格预览/next/
+旅迹风格预览/备份/
+调研/**/采集工具/AppHarbor/

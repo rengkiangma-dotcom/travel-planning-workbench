@@ -1,0 +1,25 @@
+process.env.TEMP='E:/旅游规划工作台制作/验证工具/tmp';process.env.TMP=process.env.TEMP;
+const{chromium}=require('playwright');const assert=require('node:assert/strict');
+(async()=>{const b=await chromium.launch({headless:true,executablePath:'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'});const p=await b.newPage({viewport:{width:1440,height:1000}});const errors=[];p.on('pageerror',e=>errors.push(e.message));
+try{await p.goto('http://127.0.0.1:18647/');
+await p.getByRole('button',{name:/还没有行程/}).click();
+await p.getByRole('button',{name:'创建旅行工作台',exact:false}).click();
+await p.waitForFunction(()=>typeof amapReady!=="undefined"&&amapReady);
+await p.waitForTimeout(1500);
+await p.locator('#map-search-input').fill('杭州站');await p.getByRole('button',{name:'搜索地图'}).click();
+await p.locator('#map-search-results [data-map-search-index]').first().waitFor();
+await p.locator('#map-search-results [data-map-search-index]').first().click();
+await p.locator('#map-poi-card').waitFor({state:'visible'});
+await p.getByRole('button',{name:/收藏地点/}).click();
+await p.waitForTimeout(2000);
+const st=await p.evaluate(()=>{
+  const loc=(state.customPlaces?.[state.savedPlaces?.[0]]?.gcj02||'');
+  const positions=amapOverlays.map(o=>String(o.getPosition?.()||'')).filter(s=>s&&s.includes(','));
+  return {positions, loc};
+});
+console.log('marker positions:',JSON.stringify(st.positions),'期望 gcj02:',st.loc);
+const l=st.loc.split(',').map(parseFloat);
+const hit=st.positions.some(s=>{const q=s.split(',').map(parseFloat);return Math.abs(q[0]-l[0])<0.00001&&Math.abs(q[1]-l[1])<0.00001;});
+assert.ok(hit,'星标应使用 GCJ-02 的 location 坐标');
+assert.deepEqual(errors,[]);
+console.log('PASS 星标位置与高德 GCJ-02 坐标一致（不再偏移）');}finally{await b.close();}})().catch(e=>{console.error(e.message);process.exitCode=1});

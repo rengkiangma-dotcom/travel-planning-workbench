@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>UI 风格选择 · 三个方向</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #0f0f0f; color: #fff; }
+
+/* 选择页 */
+.selector { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 32px; padding: 40px 24px; }
+.selector h1 { font-size: 20px; font-weight: 500; color: #aaa; letter-spacing: 0.05em; }
+.cards { display: flex; gap: 24px; flex-wrap: wrap; justify-content: center; max-width: 1100px; }
+.card { width: 320px; border-radius: 12px; overflow: hidden; cursor: pointer; border: 2px solid transparent; transition: border-color 0.2s, transform 0.2s; background: #1a1a1a; }
+.card:hover { border-color: #555; transform: translateY(-4px); }
+.card-thumb { height: 200px; overflow: hidden; position: relative; }
+.card-thumb iframe { width: 160%; height: 160%; border: none; transform: scale(0.625); transform-origin: top left; pointer-events: none; }
+.card-info { padding: 16px 18px 18px; }
+.card-info h2 { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+.card-info p { font-size: 13px; color: #888; line-height: 1.6; }
+.card-btn { display: inline-block; margin-top: 12px; padding: 6px 14px; background: #2a2a2a; border-radius: 6px; font-size: 12px; color: #ccc; cursor: pointer; border: 1px solid #333; transition: background 0.15s; }
+.card-btn:hover { background: #333; }
+
+/* 全屏预览遮罩 */
+.preview-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 100; flex-direction: column; }
+.preview-overlay.active { display: flex; }
+.preview-bar { height: 48px; background: #111; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; flex-shrink: 0; }
+.preview-bar span { font-size: 14px; color: #aaa; }
+.preview-bar button { background: none; border: 1px solid #444; color: #ccc; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+.preview-bar button:hover { background: #222; }
+.preview-frame { flex: 1; border: none; }
+</style>
+</head>
+<body>
+
+<div class="selector">
+  <h1>选一个你喜欢的 UI 风格方向 →</h1>
+  <div class="cards">
+
+    <div class="card" onclick="openPreview('style-a')">
+      <div class="card-thumb">
+        <iframe src="style-a-preview.html" scrolling="no"></iframe>
+      </div>
+      <div class="card-info">
+        <h2>方向 A · 深色效率台</h2>
+        <p>深灰底色 + 左侧窄导航 + 右侧内容区。像 Linear / Vercel 的感觉：专注、克制、状态一目了然。</p>
+        <span class="card-btn">点击查看大图 →</span>
+      </div>
+    </div>
+
+    <div class="card" onclick="openPreview('style-b')">
+      <div class="card-thumb">
+        <iframe src="style-b-preview.html" scrolling="no"></iframe>
+      </div>
+      <div class="card-info">
+        <h2>方向 B · 白底三栏</h2>
+        <p>浅色底 + 左侧天数列表 + 中间地点卡片 + 右侧地图常驻。像 Things / Cron 的感觉：层次清晰、主次分明。</p>
+        <span class="card-btn">点击查看大图 →</span>
+      </div>
+    </div>
+
+    <div class="card" onclick="openPreview('style-c')">
+      <div class="card-thumb">
+        <iframe src="style-c-preview.html" scrolling="no"></iframe>
+      </div>
+      <div class="card-info">
+        <h2>方向 C · 暖白卡片流</h2>
+        <p>米白底 + 卡片堆叠 + 顶部步骤引导。像 Notion / Craft 的感觉：有温度、一步一步走、不迷路。</p>
+        <span class="card-btn">点击查看大图 →</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="preview-overlay" id="previewOverlay">
+  <div class="preview-bar">
+    <span id="previewTitle">预览</span>
+    <button onclick="closePreview()">← 返回选择</button>
+  </div>
+  <iframe class="preview-frame" id="previewFrame" src=""></iframe>
+</div>
+
+<script>
+function openPreview(id) {
+  const titles = { 'style-a': '方向 A · 深色效率台', 'style-b': '方向 B · 白底三栏', 'style-c': '方向 C · 暖白卡片流' };
+  document.getElementById('previewTitle').textContent = titles[id];
+  document.getElementById('previewFrame').src = id + '-preview.html';
+  document.getElementById('previewOverlay').classList.add('active');
+}
+function closePreview() {
+  document.getElementById('previewOverlay').classList.remove('active');
+  document.getElementById('previewFrame').src = '';
+}
+</script>
+</body>
+</html>

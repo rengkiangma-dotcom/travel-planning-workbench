@@ -1,0 +1,31 @@
+{
+  "viewport": {
+    "width": 1600,
+    "height": 1000
+  },
+  "origin": "青岛北站",
+  "destination": "青岛市植物园",
+  "results": [
+    {
+      "mode": "driving",
+      "label": "驾车",
+      "status": "高德官方路线 · 2026/11/16 19:15:43 · 返回 1 个方案",
+      "count": 1,
+      "error": ""
+    },
+    {
+      "mode": "transit",
+      "label": "公交",
+      "status": "高德官方路线 · 2026/11/16 19:16:05 · 返回 5 个方案",
+      "count": 5,
+      "error": ""
+    },
+    {
+      "mode": "walking",
+      "label": "步行",
+      "status": "高德官方路线 · 2026/11/16 19:16:28 · 返回 1 个方案",
+      "count": 1,
+      "error": ""
+    }
+  ]
+}
